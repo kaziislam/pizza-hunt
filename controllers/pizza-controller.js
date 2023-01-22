@@ -1,11 +1,17 @@
 const { Pizza } = require('../models');
 
+// pizzaController object
 const pizzaController = {
     // the function will go in here as methods
-
     // get all pizzas `GET /api/pizzas`
     getAllPizza(req, res) {
         Pizza.find({})
+            .populate({
+                path: 'comments',
+                select: '-__v'
+            })
+            .select('-__v')
+            .sort({ _id: -1 })
             .then(dbPizzaData => res.json(dbPizzaData))
             .catch(err => {
                 console.log(err);
@@ -16,6 +22,11 @@ const pizzaController = {
     // get one pizza by id
     getPizzaById({ params }, res) {
         Pizza.findOne({ _id: params.id })
+            .populate({
+                path: 'comments',
+                select: '-__v'
+            })
+            .select('-__v')
             .then(dbPizzaData => {
                 // if no pizza is found, send 404
                 if (!dbPizzaData) {
@@ -53,11 +64,11 @@ const pizzaController = {
     },
 
     // delete pizza `DELETE /api/pizzas/:id`
-    deletePizza({ params}, res) {
-        Pizza.findOneAndDelete({ _id: params.id})
+    deletePizza({ params }, res) {
+        Pizza.findOneAndDelete({ _id: params.id })
             .then(dbPizzaData => {
-                if(!dbPizzaData) {
-                    res.status(404).json({ message: 'No pizza found with this id!'});
+                if (!dbPizzaData) {
+                    res.status(404).json({ message: 'No pizza found with this id!' });
                     return
                 }
                 res.json(dbPizzaData);
